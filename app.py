@@ -52,15 +52,18 @@ class SensorsInfo(Resource):
     def get(self):
         response = None
         # validate the token and send sensor data only if success
-        if request.headers["Authorization"] == access_token:
-            response = {'MachOP_id': machop_id,
-                'time_stamp': f'{random.randint(1, 31)}-{random.randint(1, 12)}-2022 '
-                              f'{random.randint(0, 59)}:{random.randint(0, 59)} AM',
-                'temp_sensor': random.uniform(0, 50),
-                'moisture_sensor': random.uniform(0, 40),
-                'oxygen_level': random.uniform(0, 100),
-                'uptime': f'{random.randint(0, 100)}d:{random.randint(0, 23)}'
-                          f'h:{random.randint(0, 59)}m:{random.randint(0, 59)}s'}
+        if 'Authorization' in request.headers:
+            if request.headers["Authorization"] == access_token:
+                response = {'MachOP_id': machop_id,
+                    'time_stamp': f'{random.randint(1, 31)}-{random.randint(1, 12)}-2022 '
+                                  f'{random.randint(0, 59)}:{random.randint(0, 59)} AM',
+                    'temp_sensor': random.uniform(0, 50),
+                    'moisture_sensor': random.uniform(0, 40),
+                    'oxygen_level': random.uniform(0, 100),
+                    'uptime': f'{random.randint(0, 100)}d:{random.randint(0, 23)}'
+                              f'h:{random.randint(0, 59)}m:{random.randint(0, 59)}s'}
+            else:
+                response = {'Status': 'Error'}
         else:
             response = {'Status': 'Error'}
         return response
@@ -82,11 +85,14 @@ class GetSensorInfo(Resource):
 
     def get(self, sensor):
         # validate the token and send sensor data only if success
-        if request.headers["Authorization"] == access_token:
-            if sensor in response_keys:
-                response = {sensor: random.uniform(0, 50)}
+        if "Authorization" in request.headers:
+            if request.headers["Authorization"] == access_token:
+                if sensor in response_keys:
+                    response = {sensor: random.uniform(0, 50)}
+                else:
+                    response = {'Status': 'Invalid Sensor'}
             else:
-                response = {'Status': 'Invalid Sensor'}
+                return {'Status': 'Error'}
         else:
             return {'Status': 'Error'}
         return response
@@ -97,7 +103,7 @@ class Home(Resource):
     This resource handles the home endpoint
     """
     def get(self):
-        return {'Status': 'Welcome come to Protix programming challenge'}
+        return {'Status': 'Welcome to Protix programming challenge'}
 
 
 # add the API resources
